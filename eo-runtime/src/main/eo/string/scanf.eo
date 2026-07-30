@@ -56,13 +56,13 @@
     [text] > as-integer
       if. > @
         or.
-          digits.length.gt 19
+          significant.length.gt 19
           and.
-            digits.length.eq 19
+            significant.length.eq 19
             not.
               negative.if
-                digits-lte digits "9223372036854775808"
-                digits-lte digits "9223372036854775807"
+                digits-lte significant "9223372036854775808"
+                digits-lte significant "9223372036854775807"
         T
           "The number doesn't fit into long range for the '%%d' conversion"
         negative.if negated folded
@@ -105,6 +105,14 @@
         eq.
           slice text 0 1
           "+"
+      if. > significant
+        unpadded.length.eq 0
+        "0"
+        unpadded
+      replaced > unpadded
+        digits
+        regex "/^0+/"
+        ""
     [group acc] >> convert
       matched.exists.not.if > @
         *
@@ -301,6 +309,21 @@
     42
     head.
       scanf "%d" "+42"
+
+  eq. ++> can-scan-a-zero-padded-integer
+    42
+    head.
+      scanf "%d" "00000000000000000042"
+
+  eq. ++> can-scan-a-negative-zero-padded-integer
+    -42
+    head.
+      scanf "%d" "-00000000000000000042"
+
+  eq. ++> can-scan-a-zero-padded-zero
+    0
+    head.
+      scanf "%d" "00000000000000000000"
 
   eq. ++> can-scan-what-printf-wrote
     scanf
